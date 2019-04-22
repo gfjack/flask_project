@@ -45,11 +45,29 @@
                     <form method="POST" action="" >
                         <div class="border p-4">
                             <div class="md-form form-group w-50" style="margin-left: 25%">
+                                {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid") }}
+                                <div class="invalid-email">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error}}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                                 {{ form.email(class="form-control", placeholder="e-mail account") }}
+                            {% endif %}
                             </div>
 
                             <div class="md-form form-group w-50" style="margin-left: 25%">
+                                {% if form.password.errors %}
+                                {{ form.password(class="form-control is-invalid") }}
+                                <div class="invalid-password">
+                                    {% for error in form.password.errors %}
+                                        <span>{{ error}}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
                                 {{ form.password(class="form-control", placeholder="your password") }}
+                            {% endif %}
                             </div>
                         </div>
                         <div class="admin-log-in" >

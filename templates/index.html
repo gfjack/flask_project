@@ -27,38 +27,58 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                         <ul class="navbar-nav ml-auto">
-                            <li class="nav-item">
+                            {% if session.log_in %}
+                                <li class="nav-item">
                                 <a href="/New_vote" class="nav-link">New Vote</a>
-                            </li>
-                            <li class="nav-item">
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+                            {% else %}
+                                <li class="nav-item">
                                 <a href="/sign-up" class="nav-link">Sign up</a>
                             </li>
                             <li class="nav-item">
                                 <a href="/log-in" class="nav-link">Sign in</a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
             </nav>
 
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                          {{ message }}
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xs-12 col-md-8 cards-parts">
                     <div class="row VoteList">
-
                         {% for title in title %}
                         <div class="col-sm-4">
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ title[0] }} </h5>
                                     <p class="card-text">{{ title[1] }}</p>
-                                    <form action="" >
-                                        <input type="submit" class="btn btn-primary vote_button" name= "{{ title[0] }}" value="Vote">
-                                    </form>
+                                     {% if session.log_in %}
+                                            <form action="" >
+                                                <input type="submit" class="btn btn-primary vote_button" name= "{{ title[0] }}" value="Vote">
+                                            </form>
+                                      {% endif %}
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
+
                     </div>
                 </div>
 
@@ -86,6 +106,7 @@
 
             $('.vote_button').on('click', function () {
                 var title = $(this).attr('name')
+
                 $.ajax({
                     url: '/addVote',
                     type: 'POST',
