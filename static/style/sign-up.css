@@ -1,0 +1,78 @@
+.body{
+    background-color: #f6f5f2;
+
+}
+@media (min-width: 978px) {
+    .container-fluid {
+
+    }
+}
+
+.navbar {
+    background-color: black !important;
+    padding: 0;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.navbar-light .navbar-brand {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    border-radius: 4px;
+    font-size: 18px;
+    padding: 15px;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    background-color: #2ecc71;
+}
+
+.navbar-toggler {
+    background-color: white !important;
+}
+
+.main-part{
+    text-align: center
+}
+
+div.container{
+
+}
+h1{
+    margin-top: 1%;
+    top: 10%;
+    background-color: black;
+    text-align: center;
+    border-radius: 4px;
+    color: ghostwhite;
+    margin-bottom: 0;
+}
+
+form{
+
+    margin-top:0;
+    border: black;
+    border-style: solid;
+    border-width: 5px;
+}
+ul.container{
+    text-align: center;
+}
+ul li{
+    list-style: none;
+}
+
+.form-control{
+    background-color: #343434;
+    height: 55px;
+    font-size: 20px;
+    color: #f6f5f2;
+}
+
