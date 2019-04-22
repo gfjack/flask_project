@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
@@ -10,8 +10,9 @@ app.config['SECRET_KEY'] = 'this_is_a_secret_key'
 # Configure MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Gfj123456'
+app.config['MYSQL_PASSWORD'] = 'smh23813456'
 app.config['MYSQL_DB'] = 'vote_system'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
@@ -26,16 +27,40 @@ def index():
 @app.route('/log-in', methods=['GET', 'POST'])
 def log_in():
     form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        useaccount = form.email.data
-        password = form.password.data
+    if request.method == 'POST':
+        useaccount = request.form['email']
+        password = request.form['password']
 
         cur = mysql.connection.cursor()
-        cur.execute('SELECT usr_account, usr_password FROM usr-table')
-        data = cur.fetchall()
 
-        return redirect(url_for('index'))
+        result = cur.execute("SELECT * FROM usr_table WHERE usr_account = %s", [useaccount])
+
+        if result > 0:
+            data = cur.fetchone()
+            REALpassword = data['usr_password']
+
+            if REALpassword == password:
+                app.logger.info('right password')
+                session['log_in'] = True
+
+                return redirect(url_for('index'))
+            else:
+                flash(f'this password is not correct', 'danger')
+            cur.close()
+        else:
+            cur.close()
+            app.logger.info('invalid account')
+            flash(f'this account is invalid', 'danger')
+            return render_template('log_in.html', form=form)
+
     return render_template('log_in.html', form=form)
+
+
+@app.route('/log-out')
+def logout():
+    session.clear()
+    flash(f'log out safely', 'success')
+    return redirect(url_for('index'))
 
 
 @app.route('/sign-up', methods=['GET', 'POST'])
