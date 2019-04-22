@@ -18,7 +18,7 @@ mysql = MySQL(app)
 @app.route('/')
 def index():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT game_name, game_description FROM game_title')
+    cur.execute('SELECT game_name, game_description FROM game_title order by Votes DESC')
     data = cur.fetchall()
     return render_template('index.html', title=data)
 
@@ -88,5 +88,26 @@ def create():
     return render_template('New-vote.html', form=form)
 
 
+@app.route('/addVote', methods=['POST'])
+def addVote():
+    title = request.form.get('id')
+
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE game_title SET Votes=Votes+1 WHERE game_name='%s'" % title)
+
+    # commit and close connection
+    mysql.connection.commit()
+    cur.close()
+
+    return
+
+
+# @app.route('/rank', methods=['POST', 'GET'])
+# def rank():
+#     cur = mysql.connection.cursor()
+#     cur.execute('SELECT * FROM game_title order by Votes DESC')
+#     data = cur.fetchall()
+#
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
