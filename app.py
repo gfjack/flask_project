@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
@@ -20,7 +20,7 @@ mysql = MySQL(app)
 @app.route('/')
 def index():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT game_name, game_description FROM game_title order by Votes DESC')
+    cur.execute('SELECT game_name, game_description, Votes FROM game_title order by Votes DESC')
     data = cur.fetchall()
     return render_template('index.html', title=data)
 
@@ -112,6 +112,7 @@ def create():
         mysql.connection.commit()
         cur.close()
 
+        flash(f'topic {form.title.data} were created', 'success')
         return redirect(url_for('index'))
     return render_template('New-vote.html', form=form)
 
@@ -126,16 +127,15 @@ def addVote():
     # commit and close connection
     mysql.connection.commit()
     cur.close()
+    check()
+    return 'success'
 
-    return
 
+@app.route('/check', methods=['GET'])
+def check():
 
-# @app.route('/rank', methods=['POST', 'GET'])
-# def rank():
-#     cur = mysql.connection.cursor()
-#     cur.execute('SELECT * FROM game_title order by Votes DESC')
-#     data = cur.fetchall()
-#
+    return check
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -39,5 +39,7 @@
  //     votelist.appendChild(div3);
  // }
 
-
+            function change() {
+                $('.vote_button').val('Voted').attr('Disabled', 'Disabled');
+            }
 
