@@ -26,6 +26,11 @@
                         <li class="nav-item">
                             <a href="/" class="nav-link">Back</a>
                         </li>
+                        {% if session.admin_log_in %}
+                            <li class="nav-item">
+                            <a href="/admin" class="nav-link">Admin</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

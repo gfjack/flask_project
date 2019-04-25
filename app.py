@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -32,6 +33,11 @@ def log_in():
         useaccount = request.form['email']
         password = str(request.form['password'])
 
+        if useaccount == "admin" and password == "admin123" and request.form['admin_log_in'] == 'admin':
+            session['log_in'] = True
+            session['admin_log_in'] = True
+            return redirect(url_for('admin'))
+
         cur = mysql.connection.cursor()
 
         result = cur.execute("SELECT * FROM usr_table WHERE usr_account = %s", [useaccount])
@@ -59,6 +65,28 @@ def log_in():
     return render_template('log_in.html', form=form)
 
 
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'log_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Please log in first', 'danger')
+            return redirect(url_for('log_in'))
+    return wrap
+
+
+def admin_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'admin_log_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Please log in first', 'danger')
+            return redirect(url_for('log_in'))
+    return wrap
+
+
 @app.route('/log-out')
 def logout():
     session.clear()
@@ -76,16 +104,23 @@ def sign_up():
 
         # Connect to sql and insert values
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO usr_table(usr_account, usr_password, usr_usrname) "
+        check = cur.execute("SELECT * FROM usr_table WHERE usr_account = %s", [email])
+        if check > 0:
+            flash(f'account is used', 'danger')
+            return redirect(url_for('sign_up'))
+        else:
+            cur.execute("INSERT INTO usr_table(usr_account, usr_password, usr_usrname) "
                     "VALUES(%s, %s, %s)",
                     (email, password, username))
 
-        # commit and close connection
-        mysql.connection.commit()
-        cur.close()
+            # commit and close connection
+            mysql.connection.commit()
+            cur.close()
+            flash(f'account for {form.username.data} are created', 'success')
+            if 'admin_log_in' in session:
+                return redirect(url_for('admin'))
+            return redirect(url_for('log_in'))
 
-        flash(f'account for {form.username.data} are created', 'success')
-        return redirect(url_for('log_in'))
     return render_template("sign-up.html", form=form)
 
 
@@ -95,6 +130,7 @@ class NewVoteForm(Form):
 
 
 @app.route('/New_vote', methods=['GET', 'POST', 'DELETE'])
+@is_logged_in
 def create():
     form = NewVoteForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -113,6 +149,8 @@ def create():
         cur.close()
 
         flash(f'topic {form.title.data} were created', 'success')
+        if 'admin_log_in' in session:
+            return redirect(url_for('admin'))
         return redirect(url_for('index'))
     return render_template('New-vote.html', form=form)
 
@@ -127,14 +165,54 @@ def addVote():
     # commit and close connection
     mysql.connection.commit()
     cur.close()
-    check()
     return 'success'
 
 
-@app.route('/check', methods=['GET'])
-def check():
+@app.route('/delete_topics/<string:name>', methods=['POST'])
+@is_logged_in
+def delete_topics(name):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM game_title WHERE game_title.game_name = %s", [name])
+    mysql.connection.commit()
+    cur.close()
 
-    return check
+    return redirect(url_for('admin'))
+
+
+@app.route('/delete_users/<string:usraccount>', methods=['POST'])
+@is_logged_in
+def delete_users(usraccount):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM usr_table WHERE usr_table.usr_account = %s", [usraccount])
+    mysql.connection.commit()
+    cur.close()
+
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin')
+@admin_logged_in
+def admin():
+    cur = mysql.connection.cursor()
+    data = cur.execute('SELECT game_name, game_description, Votes FROM game_title order by Votes DESC')
+
+    topics = cur.fetchall()
+    cur.close()
+
+    cur = mysql.connection.cursor()
+    data1 = cur.execute('SELECT usr_usrname, usr_account, usr_password FROM usr_table')
+    account = cur.fetchall()
+    cur.close()
+
+    if data > 0 and data1 > 0:
+        return render_template('admin.html', topics=topics, account=account)
+    elif data > 0 and data1 <= 0:
+        return render_template('admin.html', topics=topics)
+    elif data < 0 and data1 > 0:
+        return render_template('admin.html', account=account)
+    else:
+        flash('no topics')
+        return render_template('admin.html')
 
 
 if __name__ == '__main__':

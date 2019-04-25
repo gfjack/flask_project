@@ -26,10 +26,35 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
+
                         <ul class="navbar-nav ml-auto">
-                            {% if session.log_in %}
+                            {% if session.admin_log_in %}
                                 <li class="nav-item">
-                                <a href="/New_vote" class="nav-link">New Vote</a>
+                                    <a href="/admin" class="nav-link">Admin</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+                            {% elif session.log_in %}
+{#                                <li class="nav-item">#}
+{#                                    <a href="/admin" class="nav-link">Admin</a>#}
+{#                                </li>#}
+                                <li class="nav-item">
+                                    <a href="/New_vote" class="nav-link">New Vote</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+
+
+                            {% elif session.log_in %}
+                                <li class="nav-item">
+                                    <a href="/admin" class="nav-link">Admin</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/New_vote" class="nav-link">New Vote</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="/log-out" class="nav-link">log out</a>
@@ -93,11 +118,14 @@
                             {% endfor %}
                         </ul>
                     </div>
+
+
                     <div class="ranking-charts">
 
                     </div>
-                </div>
 
+
+                </div>
             </div>
         </div>
         </div>
@@ -119,6 +147,7 @@
                             alert('success');
                             window.location.reload();
                             change();
+
                         }
                     });
                 });
@@ -127,7 +156,6 @@
             function change() {
                 $('.vote_button').val('Voted').attr('Disabled', 'Disabled');
             }
-
     </script>
 </body>
 </html>
