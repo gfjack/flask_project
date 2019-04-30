@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
@@ -82,13 +82,18 @@ def admin_logged_in(f):
         if 'admin_log_in' in session:
             return f(*args, **kwargs)
         else:
-            flash('Please log in first', 'danger')
+            flash('Please log in as administrator first', 'danger')
             return redirect(url_for('log_in'))
     return wrap
 
 
 @app.route('/log-out')
 def logout():
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM voted_game")
+    mysql.connection.commit()
+    cur.close()
+
     session.clear()
     flash(f'log out safely', 'success')
     return redirect(url_for('index'))
@@ -126,7 +131,7 @@ def sign_up():
 
 class NewVoteForm(Form):
     title = StringField('title', [validators.Length(min=1, max=50)])
-    description = StringField('description', [validators.Length(min=1, max=50)])
+    description = StringField('description', [validators.Length(min=1, max=100)])
 
 
 @app.route('/New_vote', methods=['GET', 'POST', 'DELETE'])
@@ -137,6 +142,13 @@ def create():
         title = form.title.data
         description = form.description.data
         init_votes = 0
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT game_name from game_title where game_name='%s'" % title)
+        # mysql.connection.commit()
+        if cursor.rowcount == 1:
+            return redirect(url_for('create'))
+        cursor.close()
 
         # Connect to sql and insert values
         cur = mysql.connection.cursor()
@@ -158,10 +170,17 @@ def create():
 @app.route('/addVote', methods=['POST'])
 def addVote():
     title = request.form.get('id')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT game_name from voted_game where game_name='%s'" % title)
+    # mysql.connection.commit()
+    if cursor.rowcount == 1:
+        return
+    cursor.close()
+
     cur = mysql.connection.cursor()
-
     cur.execute("UPDATE game_title SET Votes=Votes+1 WHERE game_name='%s'" % title)
-
+    cur.execute("INSERT INTO voted_game(game_name) VALUES('%s')" % title)
     # commit and close connection
     mysql.connection.commit()
     cur.close()
@@ -208,10 +227,9 @@ def admin():
         return render_template('admin.html', topics=topics, account=account)
     elif data > 0 and data1 <= 0:
         return render_template('admin.html', topics=topics)
-    elif data < 0 and data1 > 0:
+    elif data <= 0 and data1 > 0:
         return render_template('admin.html', account=account)
     else:
-        flash('no topics')
         return render_template('admin.html')
 
 

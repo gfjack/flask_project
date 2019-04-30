@@ -16,7 +16,7 @@
     <script src="/static/script/index.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid" >
 
         <div class="container-fluid" >
             <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top id=all_container padding">
@@ -121,7 +121,7 @@
 
 
                     <div class="ranking-charts">
-
+{#                        <img src="/static/img/p2.jpg" alt="">#}
                     </div>
 
 
@@ -144,18 +144,19 @@
                         },
                          dataType: 'text',
                         success: function () {
-                            alert('success');
+                            alert('voted successfully');
                             window.location.reload();
-                            change();
-
+                            {#change();#}
                         }
-                    });
+                    }).fail(function () {
+                         alert('You have already voted this game');
+                     });
                 });
             });
 
-            function change() {
-                $('.vote_button').val('Voted').attr('Disabled', 'Disabled');
-            }
+            {#function change() {#}
+            {#    $('.vote_button').val('Voted').attr('Disabled', 'Disabled');#}
+            {#}#}
     </script>
 </body>
 </html>
