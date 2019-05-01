@@ -72,6 +72,7 @@
         <tr>
             <th>Game title</th>
             <th>Description</th>
+            <th>User</th>
             <th>Tickets</th>
         </tr>
         {% for topics in topics %}
@@ -79,6 +80,7 @@
                 <td>{{ topics[0] }}</td>
                 <td>{{ topics[1] }}</td>
                 <td>{{ topics[2] }}</td>
+                <td>{{ topics[3] }}</td>
                 <td>
                     <form>
                         <input type="button" class="btn btn-primary edit_button" name ="{{ topics[0] }}" value="Edit">
@@ -120,6 +122,34 @@
         {% endfor %}
     </table >
    </div>
+
+    <br>
+    <br>
+   <div class="container-fluid">
+        <table class="table table-striped">
+        <tr>
+            <th>user account</th>
+            <th>user action</th>
+            <th>action time</th>
+        </tr>
+
+        {% for looog in loog %}
+            <tr>
+                <td>{{ looog[0] }}</td>
+                <td>{{ looog[1] }}</td>
+                <td>{{ looog[2] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_logs', log_array=looog[1]+","+looog[0]+","+looog[2])}}" method="post">
+                        <input type="hidden" name="method" value="DELETE" >
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table >
+   </div>
+
+
 
     <script>
                $(document).ready(function () {

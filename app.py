@@ -3,6 +3,7 @@ from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
 from functools import wraps
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -36,6 +37,12 @@ def log_in():
         if useaccount == "admin" and password == "admin123" and request.form['admin_log_in'] == 'admin':
             session['log_in'] = True
             session['admin_log_in'] = True
+            session['user'] = "admin"
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO log (log_usr_account, log_game_name, log_time) "
+                        "VALUES(%s, %s, %s)",
+                        (useaccount, "log in", datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            mysql.connection.commit()
             return redirect(url_for('admin'))
 
         cur = mysql.connection.cursor()
@@ -51,7 +58,11 @@ def log_in():
             if REALpassword == password:
                 app.logger.info('right password')
                 session['log_in'] = True
-
+                session['user'] = useaccount
+                cur.execute("INSERT INTO log (log_usr_account, log_game_name, log_time) "
+                            "VALUES(%s, %s, %s)",
+                            (useaccount, "log in", datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                mysql.connection.commit()
                 return redirect(url_for('index'))
             else:
                 flash(f'this password is not correct', 'danger')
@@ -152,9 +163,9 @@ def create():
 
         # Connect to sql and insert values
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO game_title(game_name, game_description, Votes) "
-                    "VALUES(%s, %s, %s)",
-                    (title, description, int(init_votes)))
+        cur.execute("INSERT INTO game_title(game_name, game_description, user, Votes) "
+                    "VALUES(%s, %s, %s, %s)",
+                    (title, description, session['user'], int(init_votes)))
 
         # commit and close connection
         mysql.connection.commit()
@@ -170,7 +181,6 @@ def create():
 @app.route('/addVote', methods=['POST'])
 def addVote():
     title = request.form.get('id')
-
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT game_name from voted_game where game_name='%s'" % title)
     # mysql.connection.commit()
@@ -181,6 +191,10 @@ def addVote():
     cur = mysql.connection.cursor()
     cur.execute("UPDATE game_title SET Votes=Votes+1 WHERE game_name='%s'" % title)
     cur.execute("INSERT INTO voted_game(game_name) VALUES('%s')" % title)
+    cur.execute("INSERT INTO log (log_usr_account, log_game_name, log_time) "
+                "VALUES(%s, %s, %s)",
+                (session['user'], title, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
     # commit and close connection
     mysql.connection.commit()
     cur.close()
@@ -224,12 +238,25 @@ def delete_users(usraccount):
     return redirect(url_for('admin'))
 
 
+@app.route('/delete_logs/<string:log_array>', methods=['POST'])
+@is_logged_in
+def delete_logs(log_array):
+    log_list = log_array.split(",")
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM log WHERE log.log_game_name = %s AND log.log_usr_account = %s AND log_time = %s",
+                [log_list[0], log_list[1], log_list[2]])
+    if log_list[0] != "log in":
+        cur.execute("UPDATE game_title SET Votes=Votes-1 WHERE game_name='%s'" % log_list[0])
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('admin'))
+
+
 @app.route('/admin')
 @admin_logged_in
 def admin():
     cur = mysql.connection.cursor()
-    data = cur.execute('SELECT game_name, game_description, Votes FROM game_title order by Votes DESC')
-
+    data = cur.execute('SELECT game_name, game_description, user, Votes FROM game_title order by Votes DESC')
     topics = cur.fetchall()
     cur.close()
 
@@ -238,12 +265,25 @@ def admin():
     account = cur.fetchall()
     cur.close()
 
-    if data > 0 and data1 > 0:
-        return render_template('admin.html', topics=topics, account=account)
-    elif data > 0 and data1 <= 0:
+    cur = mysql.connection.cursor()
+    data2 = cur.execute('SELECT log_usr_account, log_game_name, log_time FROM log')
+    loog = cur.fetchall()
+    cur.close()
+
+    if data > 0 and data1 >0 and data2 > 0:
+        return render_template('admin.html', topics=topics, account=account, loog=loog)
+    elif data > 0 and data1 <= 0 and data2 <=0:
         return render_template('admin.html', topics=topics)
-    elif data <= 0 and data1 > 0:
+    elif data <= 0 and data2<=0 and data1 > 0:
         return render_template('admin.html', account=account)
+    elif data <= 0 and data1 <= 0 and data2 >0:
+        return render_template('admin.html', loog=loog)
+    elif data > 0 and data1 > 0 and data2 <= 0:
+        return render_template('admin.html', topics=topics, account=account)
+    elif data > 0 and data1 <= 0 and data2 > 0:
+        return render_template('admin.html', topics=topics, loog=loog)
+    elif data <= 0 and data1 > 0 and data2 > 0:
+        return render_template('admin.html', account=account, loog=loog)
     else:
         return render_template('admin.html')
 
