@@ -187,6 +187,21 @@ def addVote():
     return 'success'
 
 
+@app.route('/edit_topics', methods=['POST'])
+def edit_topics():
+    title = request.form['title']
+    game_name = request.form['game_name']
+    game_description = request.form['game_description']
+    tickets = request.form['tickets']
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE game_title SET game_name=%s, game_description=%s, Votes=%s WHERE game_name=%s", (game_name,
+                                                                                     game_description, tickets, title))
+    mysql.connection.commit()
+    cur.close()
+
+    return 'success'
+
+
 @app.route('/delete_topics/<string:name>', methods=['POST'])
 @is_logged_in
 def delete_topics(name):
@@ -234,4 +249,4 @@ def admin():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
