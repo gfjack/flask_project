@@ -13,6 +13,7 @@
       integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="
       crossorigin="anonymous">
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="/static/script/index.js"></script>
 </head>
 <body>
@@ -121,7 +122,7 @@
 
 
                     <div class="ranking-charts">
-{#                        <img src="/static/img/p2.jpg" alt="">#}
+                        <canvas id="myChart"></canvas>
                     </div>
 
 
@@ -154,6 +155,29 @@
                 });
             });
 
+            var game_names = [];
+            var tickets = [];
+
+            {% for title in title %}
+                game_names.push('{{ title[0] }}');
+                tickets.push({{ title[2] }});
+            {% endfor %}
+
+            console.log(tickets);
+            console.log(game_names);
+
+            var myChart = document.getElementById('myChart').getContext('2d');
+            var myBarChart = new Chart(myChart,{
+                type: 'horizontalBar',
+                data: {
+                    labels: game_names,
+                    datasets: [{
+                        label:'Tickets',
+                        data:tickets,
+                        backgroundColor: '#007bff'
+                    }]
+                },
+            });
     </script>
 </body>
 </html>
