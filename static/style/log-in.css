@@ -1,19 +1,15 @@
 .body{
-    background-color: #f6f5f2;
-
+    background-image: url('/static/img/t4.jpg');
+    background-size: cover;
 }
 @media (min-width: 978px) {
     .container-fluid {
-
     }
 }
-
-
 
 .main-part{
     text-align: center
 }
-
 
 h1{
     margin-top: 1%;
@@ -40,15 +36,4 @@ ul li{
     height: 55px;
     font-size: 20px;
     color: #f6f5f2;
-}
-
-button{
-
-}
-
-div.admin-log-in{
-
-}
-a{
-
 }

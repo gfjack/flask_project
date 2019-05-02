@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from wtforms import Form, StringField, validators
 from flask_mysqldb import MySQL
 from form import RegistrationForm, LoginForm
@@ -15,7 +15,6 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'Gfj123456'
 app.config['MYSQL_DB'] = 'vote_system'
-
 mysql = MySQL(app)
 
 
@@ -24,6 +23,7 @@ def index():
     cur = mysql.connection.cursor()
     cur.execute('SELECT game_name, game_description, Votes FROM game_title order by Votes DESC')
     data = cur.fetchall()
+    cur.close()
     return render_template('index.html', title=data)
 
 
@@ -125,9 +125,8 @@ def sign_up():
             flash(f'account is used', 'danger')
             return redirect(url_for('sign_up'))
         else:
-            cur.execute("INSERT INTO usr_table(usr_account, usr_password, usr_usrname) "
-                    "VALUES(%s, %s, %s)",
-                    (email, password, username))
+            cur.execute("INSERT INTO usr_table(usr_account, usr_password, usr_usrname) VALUES(%s, %s, %s)",
+                        (email, password, username))
 
             # commit and close connection
             mysql.connection.commit()
@@ -199,6 +198,11 @@ def addVote():
     mysql.connection.commit()
     cur.close()
     return 'success'
+
+
+@app.route('/intro')
+def intro():
+    return render_template('introduction.html')
 
 
 @app.route('/edit_topics', methods=['POST'])
