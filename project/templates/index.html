@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Voting</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style/index.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <script src="/static/script/index.js"></script>
+</head>
+<body>
+    <div class="container-fluid" >
+
+        <div class="container-fluid" >
+            <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top id=all_container padding">
+                <div class="container-fluid" >
+                    <a class="navbar-brand" href="/">Game Voting</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarResponsive">
+
+                        <ul class="navbar-nav ml-auto">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/intro">Introduction</a>
+                                </li>
+                            {% if session.admin_log_in %}
+                                <li class="nav-item">
+                                    <a href="/admin" class="nav-link">Admin</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+                            {% elif session.log_in %}
+                                <li class="nav-item">
+                                    <a href="/New_vote" class="nav-link">New Vote</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+
+
+                            {% elif session.log_in %}
+                                <li class="nav-item">
+                                    <a href="/admin" class="nav-link">Admin</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/New_vote" class="nav-link">New Vote</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/log-out" class="nav-link">log out</a>
+                                </li>
+
+                            {% else %}
+                                <li class="nav-item">
+                                <a href="/sign-up" class="nav-link">Sign up</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/log-in" class="nav-link">Sign in</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                          {{ message }}
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-md-8 cards-parts">
+                    <div class="row VoteList">
+                        {% for title in title %}
+                        <div class="col-sm-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ title.game_name }} </h5>
+                                    <p class="card-text">{{ title.game_description }}</p>
+                                     {% if session.log_in %}
+                                            <form class="vote_form">
+                                                <input type="button" class="btn btn-primary vote_button" name= "{{ title.game_name }}" id="{{ title.game_description }}" value="Vote" >
+                                            </form>
+                                      {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-4 ranking-parts">
+                    <div class="ranking-items-part">
+
+                        <ul class="ranking-items">
+                        <h4>Top Rankings</h4>
+                        <hr>
+                        {% for title in title %}
+                            <li>{{ title.game_name }}------>{{ title.Tickets }}_tickets</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+
+                    <div class="ranking-charts">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                    
+                    <div  class="row">
+                        <div class="col-md-6">
+                            <img src="/static/img/1.jpg" alt="" style="width: 100%; height: 100%">
+                        </div>
+                        <div class="col-md-6">
+                            <img src="/static/img/2.jpg" alt="" style="width: 100%; height: 100%">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+
+         <footer class="card-footer fixed-bottom">
+             <div class="row">
+                 <div class="col-md-6">
+                     <p class = "modify_time" >last modified time: {{time}}</p>
+                 </div>
+                 <div class="col-md-6">
+                     <p>Written by: Fengjie GU，Minghui SUN</p>
+                 </div>
+             </div>
+         </footer>
+    </div>
+
+    <script>
+            $(document).ready(function () {
+
+                $('.vote_button').on('click', function () {
+                    var title = $(this).attr('name');
+                     $.ajax({
+                        url: '/addVote',
+                        type: 'POST',
+                        data: {
+                            id: title
+                        },
+                         dataType: 'text',
+                        success: function () {
+                            alert('voted successfully');
+                            window.location.reload();
+                        }
+                    }).fail(function () {
+                         alert('You have already voted this game');
+                     });
+                });
+            });
+
+            var game_names = [];
+            var tickets = [];
+            {% for title in title %}
+                game_names.push('{{ title.game_name }}');
+                tickets.push({{ title.Tickets }});
+
+            {% endfor %}
+
+            console.log(tickets);
+            console.log(game_names);
+
+            var myChart = document.getElementById('myChart').getContext('2d');
+            var myBarChart = new Chart(myChart,{
+                type: 'horizontalBar',
+                data: {
+                    labels: game_names,
+                    datasets: [{
+                        label:'Tickets',
+                        data:tickets,
+                        backgroundColor: '#007bff'
+                    }]
+                },
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.4.0.js"
+      integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="
+      crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style/index.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top id=all_container padding">
+        <div class="container-fluid" >
+            <a class="navbar-brand" href="/">Game Voting</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/intro">Introduction</a>
+                    </li>
+                    {% if session.admin_log_in %}
+                        <li class="nav-item">
+                            <a href="/New_vote" class="nav-link">Create New Votes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/sign-up" class="nav-link">Create New Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/log-out" class="nav-link">log out</a>
+                        </li>
+                    {% elif session.log_in %}
+                        <li class="nav-item">
+                            <a href="/New_vote" class="nav-link">Create New Votes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/log-out" class="nav-link">log out</a>
+                        </li>
+
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="/sign-up" class="nav-link">Sign up</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/log-in" class="nav-link">Sign in</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <br>
+
+
+    <h1>This is the admin page</h1>
+    <hr>
+    <div class="container-fluid">
+        <table class="table table-striped">
+        <tr>
+            <th>Game title</th>
+            <th>Description</th>
+            <th>User</th>
+            <th>Tickets</th>
+        </tr>
+        {% for topics in topics %}
+            <tr>
+                <td>{{ topics.game_name }}</td>
+                <td>{{ topics.game_description }}</td>
+                <td>{{ topics.user }}</td>
+                <td>{{ topics.Tickets }}</td>
+                <td>
+                    <form>
+                        <input type="button" class="btn btn-primary edit_button" name ="{{ topics.game_name }}" value="Edit">
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_topics', name=topics.game_name) }}" method="post">
+                        <input type="hidden" name="method" value="DELETE" >
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table >
+    <hr>
+    </div>
+    <br>
+    <br>
+   <div class="container-fluid">
+        <table class="table table-striped">
+        <tr>
+            <th>username</th>
+            <th>useraccount</th>
+            <th>userpassword</th>
+        </tr>
+
+        {% for user in account %}
+            <tr>
+                <td>{{ user.user_name}}</td>
+                <td>{{ user.user_account }}</td>
+                <td>{{ user.user_password }}</td>
+                <td>
+                    <form action="{{ url_for('delete_users', usraccount=user.user_account) }}" method="post">
+                        <input type="hidden" name="method" value="DELETE" >
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table >
+   </div>
+
+    <br>
+    <br>
+   <div class="container-fluid">
+        <table class="table table-striped">
+        <tr>
+            <th>user account</th>
+            <th>user action</th>
+            <th>action time</th>
+        </tr>
+
+        {% for looog in loog %}
+            <tr>
+                <td>{{ looog.user_account }}</td>
+                <td>{{ looog.game_name }}</td>
+                <td>{{ looog.time }}</td>
+                <td>
+                    <form action="{{ url_for('delete_logs', log_array=looog.user_account+","+looog.game_name+","+looog.time)}}" method="post">
+                        <input type="hidden" name="method" value="DELETE" >
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table >
+   </div>
+
+
+
+    <script>
+               $(document).ready(function () {
+                $('.edit_button').on('click', function () {
+                    var title = $(this).attr('name');
+                    var game_name = prompt("enter the new title");
+                    var game_description = prompt("enter the new description");
+                    var tickets = prompt("enter the new tickets");
+                     $.ajax({
+                        url: '/edit_topics',
+                        type: 'POST',
+                        data: {
+                            title:title,
+                            game_name:game_name,
+                            game_description:game_description,
+                            tickets:tickets
+                        },
+                         dataType: 'text',
+                        success: function () {
+                            alert('edited successfully');
+                            window.location.reload();
+                        }
+                    }).fail(function () {
+                         alert('edited failed');
+                     });
+                });
+            });
+    </script>
+
+</body>
+</html>
