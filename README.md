@@ -1,4 +1,4 @@
-# flask_project
+# Game voting flask project web app
 
 
 # Purpose of application: 
