@@ -31,9 +31,9 @@ The social choice mechanism we chose is First past the post voting.
 
 4. Log: this table just simply records the login history and vote history of different users, and show records to the administrator. The administrator can delete a vote log to make that vote marked as invalid, which means that a ticket will be deducted from the database.
 
-If a user is not logged in, he could only see the options and results, once he logged in, he can vote a ticket for a game. If he tries to vote a game, we are using ajax to send relative data to the backend to update the database. If he attempts to create a new game option that already exists, he will get a warning.
+5. If a user is not logged in, he could only see the options and results, once he logged in, he can vote a ticket for a game. If he tries to vote a game, we are using ajax to send relative data to the backend to update the database. If he attempts to create a new game option that already exists, he will get a warning.
 
-If a user logged in as the administrator, he will be redirected into the console page, he could modify the game options (such as game_title, game_description, number of tickets), we are doing this using ajax to send data to backend. The administrator can also delete registered users, delete vote logs.
+6. If a user logged in as the administrator, he will be redirected into the console page, he could modify the game options (such as game_title, game_description, number of tickets), we are doing this using ajax to send data to backend. The administrator can also delete registered users, delete vote logs.
 
 # How to launch:
 
