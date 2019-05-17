@@ -67,14 +67,15 @@ Test 6: test if it can log out safely
 
 # Contributions: 
 
-Front-end: 
-**Fengjie GU (22268194)** is responsible for the create new vote, introduction page and index page
+###Front-end: 
 
-**Minghui SUN (22140595)** is responsible for the sign in and sign up page
-Admin page were written together
+ **Fengjie GU (22268194)** is responsible for the create new vote, introduction page and index page
 
-Back-end: 
-**Fengjie GU (22268194)** : implements the database, create new vote and index functionalities
+ **Minghui SUN (22140595)** is responsible for the sign in and sign up page
+ Admin page were written together
 
-**Minghui SUN(22140595)**: implements the sign in, sign up, administrator functionalities
+###Back-end: 
+ **Fengjie GU (22268194)** : implements the database, create new vote and index functionalities
+
+ **Minghui SUN(22140595)**: implements the sign in, sign up, administrator functionalities
 
