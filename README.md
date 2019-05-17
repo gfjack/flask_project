@@ -38,14 +38,14 @@ The social choice mechanism we chose is First past the post voting.
 # How to launch:
 
 Linux:
-1.	$sudo apt-get install python3.6
-2.	$sudo apt install python3-pip
-3.	$sudo apt-get install python3-venv 
-4.	$python3 -m venv venv 
-5.	$source venv/bin/activate
-6. $pip3 install -r requirements.txt
-7.	$python3 app.py 
-8. $deactivate (exiting)
+1.	`$sudo apt-get install python3.6`
+2.	`$sudo apt install python3-pip`
+3.	`$sudo apt-get install python3-venv`
+4.	`$python3 -m venv venv`
+5.	`$source venv/bin/activate`
+6. `$pip3 install -r requirements.txt`
+7.	`$python3 app.py `
+8. `$deactivate (exiting)`
 
 
 
